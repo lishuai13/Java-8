@@ -1,4 +1,4 @@
-#Java 8 新特性学习项目
+#Java 8 新特性学习项目  
 ##test文件夹下：
   ###demo1:lambda形成  
   ###demo2:lambda简化  
