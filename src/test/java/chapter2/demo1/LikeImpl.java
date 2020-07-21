@@ -1,4 +1,4 @@
-package demo1;
+package chapter2.demo1;
 
 /**
  * 实现类

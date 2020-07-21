@@ -1,4 +1,4 @@
-package demo2;
+package chapter2.demo2;
 
 /**
  * 函数式接口

@@ -31,3 +31,19 @@ void forEach(Consumer<? super T> action);
 ```
 此方法参数是一个消费型函数式接口，也没再生成新的stream对象，只执行打印工作
 结束
+
+##收集器总结
+1.若传入的数组对象是有序的，那么它就会被有序地处理，反之则会被无需地处理。  
+2.使用收集器的方法是需要关注方法的参数是什么,若是Function类型的接口，则可以将之前的map转换操作，放在Function中的apply中去执行，
+等待，而一些方法参数类型是固定的，比如说maxBy固定需要比较器类型的参数
+分组和分类也不同，分类方法的参数是Predicate函数型接口，因此必须返回一个布尔值，而分类是Function类型，就是通过属性字段来分组.        
+3.很多方法都能够使用简写的方式"::"，凡是使用lambda表达式的地方。就能偶使用"::",标准语法为 Classname::methodName。
+```java
+artist->artist.getName
+Artist::getName
+```
+创建一个新对象
+```java
+(name, nationality) -> new Artist(name, nationality)
+Artist::new
+```
