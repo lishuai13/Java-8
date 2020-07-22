@@ -12,7 +12,7 @@ import static java.util.stream.Collectors.reducing;
 /**
  * 使用reducing自定义收集器
  */
-public class ReducingDemo {
+public class  ReducingDemo {
 
 
     public static void main(String[] args) {

@@ -47,3 +47,14 @@ Artist::getName
 (name, nationality) -> new Artist(name, nationality)
 Artist::new
 ```
+
+### 收集器方法的参数
+```java
+Function    接受一个参数，返回一个结果：Menu:getName
+Supplier    不接受参数，返回一个结果，   TreeMap::new
+Collector   收集器     
+Predicate   接受参数，给出断言   a->a>10
+BiFunction  接受2个参数，给出一个参数   (a,b)->a
+BinaryOperator  BiFunction的特化，两个相同类型的操作数，生成与操作数相同类型的结果
+BiFunction的两个输入参数和结果可以是不同类型，而BinaryOperator的参数则是同类型的
+```

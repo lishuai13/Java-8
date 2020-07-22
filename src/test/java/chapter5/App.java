@@ -17,8 +17,8 @@ public class App {
         list.add(new Menu("fish", 1.98));
         list.add(new Menu("apple", 0.88));
         list.add(new Menu("beaf", 2.18));
-        list.add(meatMenu);
-        list.add(meatMenu);
+        list.add(new Menu("meat", 8.88));
+        list.add(new Menu("meat", 7.88));
         list.add(new Menu("chop", 0.08));
         return list;
     }
@@ -28,10 +28,10 @@ public class App {
     public  void test1() {
         List<Menu> list = factory();
         //计算数量
-        Long total = list.stream().map(m->m.getWeight()).collect(counting());
+        Long collect = list.stream().collect(counting());
         //等同写法
-        long total2 = list.stream().map(Menu::getWeight).count();
-        System.out.println("===t1===" + total + ",===t2===" + total2);
+        Long collect2 = list.stream().count();
+        System.out.println(collect);
     }
 
 
@@ -39,80 +39,52 @@ public class App {
     @Test
     public  void test2() {
         List<Menu> list = factory();
-        //查找流中的最大值，maxBy参数为比较器
-        Optional<Double> max = list.stream().map(m -> m.getWeight()).collect(maxBy((a,b)->{return a.compareTo(b);}));
-        //等同写法
-        Optional<Double> max2 = list.stream().map(m -> m.getWeight()).collect(maxBy(Comparator.comparing(a->a)));
-        //等同写法
-        Optional<Double> max3 = list.stream().map(Menu::getWeight).collect(maxBy(Double::compareTo));
-        //等同写法
-        Optional<Double> max4 = list.stream().map(Menu::getWeight).max(Double::compareTo);
-        //等同写法
-        Optional<Double> max5 = list.stream().map(Menu::getWeight).reduce(Double::max);
-        //这是reduce独有的，maxBy不存在初始值
-        Double max6 = list.stream().map(Menu::getWeight).reduce(0D, Double::max);
 
+        Optional<Menu> max = list.stream().max(Comparator.comparing((Menu::getWeight)));
+        max.ifPresent(System.out::println);
 
-        //查找流中的最小值
-        Optional<Double> min = list.stream().map(Menu::getWeight).collect(minBy(Double::compare));
-        //等同写法
-        Optional<Double> min2 = list.stream().map(Menu::getWeight).reduce(Double::min);
-        //这是reduce独有的，minBy不存在初始值
-        Double min3 = list.stream().map(Menu::getWeight).reduce(1D, Double::min);
+        Optional<Double> collect = list.stream().map(Menu::getWeight).collect(maxBy((a, b) -> {
+            return a.compareTo(b);
+        }));
 
-        System.out.println("===max==="+max+",===max2==="+max2+",===max3==="+max3+",===max4==="+max4+",===max5==="+max5);
-        System.out.println("===min==="+min+",===min2==="+min2+",===min3==="+min3);
+        Optional<Double> collect1 = list.stream().map(Menu::getWeight).collect(minBy((a, b) -> {
+            return a.compareTo(b);
+        }));
 
+        collect.ifPresent(System.out::println);
+        collect1.ifPresent(System.out::println);
     }
 
     //求和，平均值
     @Test
     public  void test3() {
         List<Menu> list = factory();
-        //求和
-        Double doubleSum = list.stream().map(Menu::getWeight).collect(summingDouble(s->s));
-        //等同写法
-        Double doubleSum2 = list.stream().mapToDouble(Menu::getWeight).sum();
-        //等同写法
-        Double doubleSum3 = list.stream().collect(summingDouble(Menu::getWeight));
-        //求平均数
-        Double averageWeight = list.stream().collect(averagingDouble(Menu::getWeight));
-        System.out.println("===doubleSum===" + doubleSum + ",===averageWeight===" + averageWeight);
+        Double collect = list.stream().collect(summingDouble(Menu::getWeight));
+        Double collect1 = list.stream().collect(averagingDouble(Menu::getWeight));
+        Double collect3 = list.stream().map(Menu::getWeight).collect(summingDouble(s->s));
+        System.out.println(collect+"-"+collect1+"-"+collect3);
         //将汇总操作放在一个收集器进行
         DoubleSummaryStatistics doubleSummaryStatistics = list.stream().collect(summarizingDouble(Menu::getWeight));
         System.out.println(doubleSummaryStatistics.toString());
-
     }
 
-    //连接字符串
+    //连接字符串,三个参数分别是间隔符，开头，结尾
     @Test
     public  void test4() {
         List<Menu> list = factory();
         //连接字符串
-        String printStr = list.stream().map(Menu::getName).collect(joining(","));
+        String printStr = list.stream().map(Menu::getName).collect(joining(",","me[","]"));
         System.out.println("打印结果:"+printStr);
     }
 
-    //reducing
-    @Test
-    public  void test5() {
-        List<Menu> list = factory();
-        //reducing
-        double sum = list.stream().collect(reducing(0d, Menu::getWeight, Double::sum));
-        System.out.println("===sum===" + sum);
-        //相同效果
-        Double sum1 = list.stream().mapToDouble(Menu::getWeight).sum();
-        System.out.println("===sum1===" + sum1);
-
-    }
-
-    //分类，条件判断
+    //分类，条件判断，使用类似groupingBy，支持组合收集器
     @Test
     public  void test6() {
         List<Menu> list = factory();
-        //按体重是否大于2进行分组，
-        Map<Boolean, List<Menu>> map = list.stream().collect(partitioningBy(menu -> menu.getWeight() > 2));
-        System.out.println(map);
+        //按体重是否大于2进行分组计数，
+        Map<Boolean, Long> collect = list.stream().collect(partitioningBy(((menu -> menu.getWeight() > 2)), counting()));
+        collect.forEach((k,v)-> System.out.println(k+"-"+v));
+
 
     }
 
@@ -122,7 +94,50 @@ public class App {
         List<Menu> list = factory();
         //按name分类
         Map<String, List<Menu>> listMap = list.stream().collect(groupingBy(Menu::getName));
-        System.out.println(listMap);
+        //组合操作,2个:先使用上游收集器，再对结果使用下游收集器
+        Map<String, Long> collect = list.stream().collect(groupingBy((Menu::getName), counting()));
+        //组合操作,3个:先使用上游收集器，再对结果使用下游收集器,然后是中间收集器定型
+        TreeMap<String, Optional<Menu>> collect1 = list.stream().collect(groupingBy((Menu::getName), TreeMap::new, maxBy((u1, u2) -> {
+            return Double.compare(u1.getWeight(), u2.getWeight());
+        })));
+        listMap.forEach((k,v)-> System.out.println(k+"-"+v));
+        collect.forEach((k,v)-> System.out.println(k+"-"+v));
+        collect1.forEach((k,v)-> System.out.println(k+"-"+v));
+
+    }
+
+    //mapping,类似map，支持组合操作
+    @Test
+    public  void test8() {
+        List<Menu> list = factory();
+        String collect = list.stream().collect(mapping((Menu::getName), joining(",")));
+        System.out.println(collect);
+
+    }
+
+    //toCollection
+    @Test
+    public  void test9() {
+        List<Menu> list = factory();
+        LinkedList<Menu> collect = list.stream().collect(toCollection(LinkedList::new));
+        for (Menu menu : collect) {
+            System.out.println(menu);
+        }
+    }
+
+    //toMap
+    @Test
+    public  void test10() {
+        List<Menu> list = factory();
+        //指定键和值的映射函数
+//        Map<String, String> collect = list.stream().collect(toMap(Menu::getName, Menu::toString));
+//        collect.forEach((k,v)-> System.out.println(k+"-"+v));
+        //第三个参数来约定冲突解决,传入的参数为重复的两个对象，返回的为保留的对象
+        Map<String, String> collect1 = list.stream().collect(toMap(Menu::getName, Menu::toString,(s, a) -> a));
+        collect1.forEach((k,v)-> System.out.println(k+"-"+v));
+        //第四个参数用来提供另一个容器
+        Map<String, String> collect2 = list.stream().collect(toMap(Menu::getName, Menu::toString,(s, a) -> a,TreeMap::new));
+        collect2.forEach((k,v)-> System.out.println(k+"-"+v));
     }
 }
 

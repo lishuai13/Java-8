@@ -19,6 +19,8 @@ public class OptionTest {
         Optional<Menu> op = Optional.of(menu);
         //若不空,执行操作
         op.ifPresent(u-> System.out.println(u.getName()));
+        //等同
+        if (op.isPresent()) System.out.println(op.get().getName());
         //若不空，输出
     }
 

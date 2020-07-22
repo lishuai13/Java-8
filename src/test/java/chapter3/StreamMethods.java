@@ -64,7 +64,7 @@ public class StreamMethods {
     public void maxTest() {
         String[] testStrings = { "java", "react", "angular", "javascript", "vue" };
 
-        String max = Stream.of(testStrings).max(Comparator.comparing(str->str.length()))
+        String max = Stream.of(testStrings).max(Comparator.comparing(String::length))
                 .get();
         System.out.println(max);
     }
